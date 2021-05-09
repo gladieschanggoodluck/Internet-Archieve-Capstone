@@ -1,4 +1,3 @@
-# Internet-Archieve-Capstone
 # Internet-Archive-PDF
 
 ## Problem Description
@@ -14,24 +13,29 @@ their likelihood of being a research publication, and what stage of publication 
 abstract, manuscript, camera ready, OCR scan) the file represents. Ideally the tool would
 process hundreds of millions of files and be network (as opposed to CPU) bound.
 
-## Objective
-Our primary objective is to gain practical insight into which methods and tools are actually
-effective with our raw content and metadata to increase the coverage and quality of our catalog.
-Based on the outcome of this capstone project we will deploy new data processing pipelines
-(batch or streaming) as part of our production services.
-A stretch goal would be software with sufficient quality and utility to be deployed directly to our
-production infrastructure with little modification.
+## Environment 
+- Python Version 3.7.4
+- Tensorflow Version 2.3.1
+- Keras Version 2.4.3
 
 
-## Description of the Data
-The Internet Archive can provide the following datasets in either complete or statistical sample
-form:
-- Original PDF or extracted XML for 50+ million research publications. Only a subset of
-these have been matched to a catalog entry so far
-- Samples of a corpus of hundreds of millions of unsorted, raw PDF files from our
-historical web archives
-- Privacy restrictions vary depending on the specific dataset. Full text of Open Access
-publications (either in original PDF or extracted XML format) carry the licenses of their
-original works (often as open Creative Commons licenses).
-- Bryan, the project liaison at the Internet Archive, will make sure that the data is available.
-It is already free and open.
+## How To
+### To run the text based approach follow these steps
+- First run createDB.py or download googletranslate.db
+  - Recommend downloading googletranslate.db
+- Second run multiprocessingMetaText.py 
+  - *python multiprocessingMetaText.py -d "path to input directory of pdfs" -o "path to output directory to store csv" -f "file name to save as (needs to be pkl)" -p "# of processes to use (or let the script decide)"*
+    - This script will call metaText.py and create a dataset that is used for the model
+
+### To run the image based approach follow these steps
+- First run multiprocessingPDFtoImages.py
+  - *python multiprocessingMetaText.py -d "path to input directory of pdfs" -o "path to output directory to store png" -p "# of processes (or let the script decide)"*
+    - This script will call pdfToImage.py and create an image of the first page of each PDF
+- Second if a **VGG16_V4 model does not** exist create a training data set and run cnn.py else skip this step
+  - Modify line 52 to point to training set
+  - *python cnn.py*
+    - This will train a VGG16 model and save the model
+- Third run multiprocessingCNNPredict.py
+  - Modify line 15 in cnnPredict.py to point to saved model
+  - *python multiprocessingCNNPredict.py -d "path to png files" -o "path to save result" -f "resultName.csv" -p "# of processes (or let the script decide)"* 
+    - This script will call cnnPredict.py and return a csv file with the prediction of each PDF 
